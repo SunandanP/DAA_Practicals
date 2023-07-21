@@ -1,6 +1,46 @@
 #include<iostream>
+#include<string>
+#include<cmath>
+#include <stdlib.h>
 
 using namespace std;
+
+int powGenerator(int n){
+	int num = 1;
+	
+	if(n == 0)
+		return 1;
+	else{
+		for(int i = 0; i < n; i++){
+			num *= 10;
+		}
+	}	
+	return num;
+	
+}
+
+void armstrong(int num){
+	int digits[10];
+	int n, temp = num;
+	for(n = 0; temp != 0; n++){
+		digits[n] = temp % 10;
+		temp /= 10;
+	} 
+	
+	int sum = 0;
+	
+	for(int i = 0; i < n; i++){
+		sum += pow(digits[i], n);
+	}
+	
+	if(sum == num){
+		cout<<"Armstrong"<<endl;
+	}
+	else{
+		cout<<"No armstrong"<<endl;
+	}
+	
+}
 
 void printPattern(){
 	for(int i = 0; i < 5; i++){
@@ -103,6 +143,7 @@ int main(){
 	readArrAsc(arr, 6);
 	cout<<endl;
 	recurFibonacci(0,1,5,5);
+	armstrong(407);
 }
 
 /*
@@ -120,7 +161,7 @@ OUTPUT
 6 5 4 3 2 1 
 1 2 3 4 5 6 
 0 1 1 2 3 5 8 
-
+No armstrong
 
 */
 
