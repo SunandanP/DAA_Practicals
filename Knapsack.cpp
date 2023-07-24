@@ -130,3 +130,24 @@ int main(){
 	App app(containers, 7, 15);
 	app.runApp();
 }
+
+
+/* OUTPUT
+4) Profit : 6, Weight : 1, Ratio : 6, Quantity :  0
+0) Profit : 10, Weight : 2, Ratio : 5, Quantity :  0
+5) Profit : 18, Weight : 4, Ratio : 4.5, Quantity :  0
+2) Profit : 15, Weight : 5, Ratio : 3, Quantity :  0
+6) Profit : 3, Weight : 1, Ratio : 3, Quantity :  0
+1) Profit : 5, Weight : 3, Ratio : 1.66667, Quantity :  0
+3) Profit : 7, Weight : 7, Ratio : 1, Quantity :  0
+Selected items : 
+1] Index : 4, Profit : 6, Quantity : 1
+2] Index : 0, Profit : 10, Quantity : 1
+3] Index : 5, Profit : 18, Quantity : 1
+4] Index : 2, Profit : 15, Quantity : 1
+5] Index : 6, Profit : 3, Quantity : 1
+6] Index : 1, Profit : 3.33333, Quantity : 0.666667
+7] Index : 3, Profit : 0, Quantity : 0
+Total profit : 55.3333
+
+*/
