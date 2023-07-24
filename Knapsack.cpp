@@ -2,121 +2,131 @@
 
 using namespace std;
 
-struct Object{
+class Container{
+public:
+	static int count;	
+
+	int index;
 	int profit;
 	int weight;
-	int quantity;
-	
-	Object(int profit, int weight){
-		this->profit = profit;
-		this->weight = weight;
-		this->quantity = 0;
-	}	
-	
-	Object(){
+	float ratio;
+	float quantity;
+
+		
+	Container(){
+		index = count++;
 		profit = 0;
 		weight = 0;
+		ratio = 0;
 		quantity = 0;
 	}
+	
+	Container(int weight, int profit){
+		index = count++;
+		this->profit = profit;
+		this->weight = weight;
+		ratio = float(profit/float(weight));
+		quantity = 0;
+	}
+	
+	void printContainer(){
+		cout<<index<<") Profit : "<<profit<<", Weight : "<<weight<<", Ratio : "<<ratio<<", Quantity :  "<<quantity<<endl;
+	}
 };
 
-struct PWR {
-	int index;
-	float ratio;
-	
-	PWR(){
-		index = -1;
-		ratio = 0;
-	}
-	
-	PWR(int index, float ratio){
-		this->index = index;
-		this->ratio = ratio;
-	}
-	
-};
+int Container::count = 0;
 
-PWR* getProfitToWeight(Object objects[], int num){
-	PWR ratios[num];
-	PWR temp;
-	for(int i = 0; i < num; i++){
-		ratios[i].index = i;
-		ratios[i].ratio = float(objects[i].profit/objects[i].weight);
+class App{
+	public:
+	int size;
+	int capacity;
+	Container *containers;
+	
+	App(Container containers[], int size, int capacity){
+		this->containers = containers;
+		this->size = size;
+		this->capacity = capacity;
 	}
 	
+	void print(){
+		for(int i = 0; i < size; i++){
+			containers[i].printContainer();
+		}
+	}
 	
-	for(int i = 0; i < num; i++){
-		for(int j = 0; j < num; j++){
-			if(ratios[i].ratio <= ratios[j].ratio){
-				temp = ratios[i];
-				ratios[i] = ratios[j];
-				ratios[j] = temp;
+	void sortDescinding(){
+		Container temp,tempI, tempJ;
+		for(int i = 0; i < size; i++){
+			for(int j = 0; j < size; j++){
+				tempI = containers[i];
+				tempJ = containers[j];
+				if(tempI.ratio > tempJ.ratio){
+					temp = containers[i];
+					containers[i] = containers[j];
+					containers[j] = temp;
+				}
 			}
+			
 		}
-	}
-	
-	return ratios;
-}
-
-int getIndex(PWR ratios[], int index){
-	return ratios[index].index;
-}
-
-float getRatio(PWR ratios[], int index){
-	return ratios[index].ratio;
-}
-
-void selectObjects(Object objects[], int num, int capacity){
-	PWR* ratios = getProfitToWeight(objects, num);
-	
-	int count = 0, index = 0;
-	
-	while(count <= capacity){
-		count += objects[ratios[index].index].weight;
-		objects[ratios[index].index].quantity++;
-		index++;
-	}
-	
-	if(count < capacity){
-		int reqIndex = getIndex(ratios, index);
-		if(reqIndex != -1){
-			objects[reqIndex].quantity += float(count/objects[reqIndex].weight);
-		}
+		
+		print();
+		
 		
 	}
 	
-	int totalWeight = 0, tW = 0;
-	float totalProfit = 0, tP = 0;
-	
-	index = 0; 
-	
-	for(int i = 0; i < num; i++){
-		tP = objects[i].quantity * getRatio(ratios, i);
-		tW = objects[i].weight * objects[i].quantity;
-		cout<<"index : "<<i<<" , Quantity : "<<objects[i].quantity<<" , Profit : "<<tP<<" , Considered Weight : "<<tW<<endl;
-		totalWeight += tW;
-		totalProfit += tP;
+	void selectContainers(){
+		int count = 0;
+		int currIndex;
+
+		for(currIndex = 0; currIndex < size; currIndex++){
+			if(count + containers[currIndex].weight <= capacity){
+				count += containers[currIndex].weight;
+				containers[currIndex].quantity++;
+			}
+			if(count + containers[currIndex + 1].weight >= capacity){
+				currIndex++;
+				break;
+			}
+		}
+		
+		if(count < capacity){
+			containers[currIndex].quantity += float((capacity - count)/float(containers[currIndex].weight));
+			count += (capacity - count);
+		}
 	}
 	
-	cout<<"Total Weight : "<<totalWeight<<" , Total Profit : "<<totalProfit<<endl;
+	void runApp(){
+		sortDescinding();
+		selectContainers();
+		printProfit();
+	}
 	
-}
+	void printProfit(){
+		float sum = 0;
+		
+		cout<<"Selected items : "<<endl;
+		for(int i = 0; i < size; i++){
+			sum += containers[i].profit * containers[i].quantity;
+			cout<<i+1<<"] Index : "<<containers[i].index<<", Profit : "<<containers[i].profit * containers[i].quantity<<", Quantity : "<<containers[i].quantity<<endl;
+		}
+		cout<<"Total profit : "<<sum<<endl;
+	}
+	
+};
+
 
 int main(){
-	Object objects[] = {
-		Object(2,10),
-		Object(3,5),
-		Object(5,15),
-		Object(7,7),
-		Object(1,6),
-		Object(4,18),
-		Object(1,3)
+	Container containers[] = {
+		Container(2,10),
+		Container(3,5),
+		Container(5,15),
+		Container(7,7),
+		Container(1,6),
+		Container(4,18),
+		Container(1,3)
 		
 	};
 	
-	selectObjects(objects,7, 15);
-	
-	return 0;
-	
-	
+	App app(containers, 7, 15);
+	app.runApp();
 }
