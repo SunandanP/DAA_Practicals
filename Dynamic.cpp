@@ -15,32 +15,31 @@ class Array{
         this->items = items;
         this->capacity = capacity;
 
-        vector<int> temp(capacity);
+        vector<int> temp(capacity + 1);
 
-        for (int i = 0; i <= capacity; i++){
+        for (int i = 0; i <= capacity + 1; i++){
             temp[i] = 0;
         }
 
-        for (int i = 0; i <= items; i++){
+        for (int i = 0; i < items; i++){
             array.push_back(temp);
-        }  
+        }
     }
 
 
-    void init(){
-        for (int i = 0; i < array.size(); i++){
-            array[i][0] = 0;
-        }
-
-        for (int i = 0; i < array[0].size(); i++){
-            array[0][i] = 0;
-        }
-
-    }
 
     void printArray(){
+        cout<<"X"<<"\t";
+        for(int i = 0; i < array[0].size(); i++)
+            cout<<i<<"\t";
+        cout<<endl;
+        int count = 0;
         for (int i = 0; i < array.size(); i++){
             for(int j = 0; j < array[0].size(); j++){
+                if(count == i){
+                    cout<<count<<"\t";
+                    count++;
+                }
                 cout<<array[i][j]<<"\t";
             }
             cout<<endl;
@@ -67,24 +66,75 @@ class Container{
         this->weight = weight;
     }
 
-};
-
-class calculator{
-    Array array;
-    Container *containers;
-
-    calculator(){}
-
-    calculator(Array array, Container container[]){
-
+    void printContainer(){
+        cout<<"index : "<<index<<"\tprofit : "<<profit<<"\tweight : "<<weight<<endl;
     }
 
 };
 
+class Solution{
+public:
+    Array *table;
+
+    vector<Container> items;
+
+    void printSolution(){
+        cout<<"Table : "<<endl;
+        table->printArray();
+
+    }
+
+
+    Solution(vector<Container> items, int capacity, int totalItems){
+        this->items = items;
+        table = new Array(totalItems, capacity);
+    }
+
+    int getMax(int first, int second){
+        return (first > second)? first : second;
+    }
+
+
+    int searchByProfit(int profit){
+        for (int i = 0; i < items.size(); i++) {
+            if (profit == items[i].profit){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+
+    void fillTable(){
+        for (int i = 1; i < table->items; i++) {
+            for (int j = 1; j <= table->capacity; j++) {
+                if (items[i].weight > j){
+                    table->array[i][j] = table->array[i - 1][j];
+                }
+                else{
+                    if(items[i].profit + table->array[i - 1][j - items[i].weight] > table->array[i - 1][j]){
+                        table->array[i][j] = items[i].profit + table->array[i - 1][j - items[i].weight];
+                    } else {
+                        table->array[i][j] = table->array[i - 1][j];
+                    }
+                }
+            }
+        }
+    }
+};
+
+
+
 int main()
 {
-    Array array(4, 8);
-    array.init();
-    array.printArray();
+    vector<Container> containers;
+    containers.push_back(Container(0,2,3));
+    containers.push_back(Container(1,3,4));
+    containers.push_back(Container(2,4,5));
+    containers.push_back(Container(3,5,6));
+
+    Solution solution(containers, 7, 4);
+    solution.fillTable();
+    solution.printSolution();
     return 0;
 }
