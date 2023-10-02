@@ -104,10 +104,70 @@ public:
         return -1;
     }
 
+    int searchByWeight(int weight){
+        for (int i = 0; i < items.size(); i++) {
+            if (weight == items[i].weight){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+
+    void fillHandler(){
+        fill(0);
+    }
+
+    void fill(int selection){
+        if (selection == table->items){
+            return;
+        }
+//        for (int i = 0; i <= selection; i++) {
+//            for (int j = 1; j <= table->capacity; j++) {
+//                if(items[i].weight <= j){
+//                    table->array[i][j] = items[i].weight;
+//                }
+//
+//                if (j - items[searchByProfit(table->array[i][j])].weight > 0){
+//                    int diff = j - items[searchByProfit(table->array[i][j])].weight;
+//                    if (int w = searchByWeight(diff) != -1 && searchByWeight(diff) != i){
+//                        table->array[i][j] += items[w].profit;
+//                    }
+//                }
+//            }
+//        }
+
+        for (int i = 0; i <= selection; i++) {
+            for (int j = 1; j <= table->capacity; j++) {
+                if(items[i].weight <= j){
+                    table->array[i][j] = items[i].profit;
+
+                }
+                if(table->array[i][j] == 0){
+                    if(i != 0) {
+                        table->array[i][j] = table->array[i - 1][j];
+
+                    }
+                }
+
+                for (int k = 0; k <= i; k++) {
+                    if (items[k].weight + items[searchByProfit(table->array[i][j])].weight < j){
+                        if (k != searchByProfit(table->array[i][j])){
+                            table->array[i][j] += items[k].profit;
+                        }
+                    }
+                }
+            }
+
+        }
+
+        fill(selection + 1);
+    }
+
 
     void fillTable(){
         for (int i = 1; i < table->items; i++) {
-            for (int j = 1; j <= table->capacity; j++) {
+            for (int j = 0; j <= table->capacity; j++) {
                 if (items[i].weight > j){
                     table->array[i][j] = table->array[i - 1][j];
                 }
@@ -121,6 +181,11 @@ public:
             }
         }
     }
+
+    void fillTable1(){
+
+    }
+
 };
 
 
@@ -134,7 +199,7 @@ int main()
     containers.push_back(Container(3,5,6));
 
     Solution solution(containers, 7, 4);
-    solution.fillTable();
+    solution.fillHandler();
     solution.printSolution();
     return 0;
 }
