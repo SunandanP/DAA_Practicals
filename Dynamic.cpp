@@ -3,15 +3,18 @@
 
 using namespace std;
 
-class Array{
-    public:
+class Util{
+public:
     vector<vector<int>> array;
     int items;
     int capacity;
 
-    
+    Util(){
+        items = 0;
+        capacity = 0;
+    }
 
-    Array(int items, int capacity){
+    Util(int items, int capacity){
         this->items = items;
         this->capacity = capacity;
 
@@ -21,7 +24,7 @@ class Array{
             temp[i] = 0;
         }
 
-        for (int i = 0; i < items; i++){
+        for (int i = 0; i <= items; i++){
             array.push_back(temp);
         }
     }
@@ -47,159 +50,118 @@ class Array{
     }
 };
 
-class Container{
-    public:
+class Item{
+public:
 
-    int index;
     int profit;
     int weight;
 
-    Container(){
-        index = 0;
+    Item(){
+
         profit = 0;
         weight = 0;
     }
 
-    Container(int index, int profit, int weight){
-        this->index = index;
+    Item(int profit, int weight){
         this->profit = profit;
         this->weight = weight;
     }
 
     void printContainer(){
-        cout<<"index : "<<index<<"\tprofit : "<<profit<<"\tweight : "<<weight<<endl;
+        cout<<"\tprofit : "<<profit<<"\tweight : "<<weight<<endl;
     }
 
 };
 
 class Solution{
 public:
-    Array *table;
-
-    vector<Container> items;
+    Util util;
+    vector<int> selection;
+    vector<Item> items;
 
     void printSolution(){
         cout<<"Table : "<<endl;
-        table->printArray();
-
+        util.printArray();
     }
 
 
-    Solution(vector<Container> items, int capacity, int totalItems){
+    Solution(vector<Item> items, int capacity, int totalItems){
         this->items = items;
-        table = new Array(totalItems, capacity);
+        util = Util(totalItems, capacity);
     }
-
-    int getMax(int first, int second){
-        return (first > second)? first : second;
-    }
-
-
-    int searchByProfit(int profit){
-        for (int i = 0; i < items.size(); i++) {
-            if (profit == items[i].profit){
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    int searchByWeight(int weight){
-        for (int i = 0; i < items.size(); i++) {
-            if (weight == items[i].weight){
-                return i;
-            }
-        }
-        return -1;
-    }
-
-
-    void fillHandler(){
-        fill(0);
-    }
-
-    void fill(int selection){
-        if (selection == table->items){
-            return;
-        }
-//        for (int i = 0; i <= selection; i++) {
-//            for (int j = 1; j <= table->capacity; j++) {
-//                if(items[i].weight <= j){
-//                    table->array[i][j] = items[i].weight;
-//                }
-//
-//                if (j - items[searchByProfit(table->array[i][j])].weight > 0){
-//                    int diff = j - items[searchByProfit(table->array[i][j])].weight;
-//                    if (int w = searchByWeight(diff) != -1 && searchByWeight(diff) != i){
-//                        table->array[i][j] += items[w].profit;
-//                    }
-//                }
-//            }
-//        }
-
-        for (int i = 0; i <= selection; i++) {
-            for (int j = 1; j <= table->capacity; j++) {
-                if(items[i].weight <= j){
-                    table->array[i][j] = items[i].profit;
-
-                }
-                if(table->array[i][j] == 0){
-                    if(i != 0) {
-                        table->array[i][j] = table->array[i - 1][j];
-
-                    }
-                }
-
-                for (int k = 0; k <= i; k++) {
-                    if (items[k].weight + items[searchByProfit(table->array[i][j])].weight < j){
-                        if (k != searchByProfit(table->array[i][j])){
-                            table->array[i][j] += items[k].profit;
-                        }
-                    }
-                }
-            }
-
-        }
-
-        fill(selection + 1);
-    }
-
 
     void fillTable(){
-        for (int i = 1; i < table->items; i++) {
-            for (int j = 0; j <= table->capacity; j++) {
-                if (items[i].weight > j){
-                    table->array[i][j] = table->array[i - 1][j];
+        for (int i = 0; i <= items.size(); i++) {
+            for (int weight= 0; weight <= util.capacity; weight++) {
+                //item or weight doesn't exist
+                if (i == 0 || weight == 0){
+                    util.array[i][weight] = 0;
                 }
-                else{
-                    if(items[i].profit + table->array[i - 1][j - items[i].weight] > table->array[i - 1][j]){
-                        table->array[i][j] = items[i].profit + table->array[i - 1][j - items[i].weight];
-                    } else {
-                        table->array[i][j] = table->array[i - 1][j];
-                    }
+                // if there is a scope of adding some weight to the knapsack
+                //weight being, the weight under consideration 0, 1, 2, 3...n
+                else if(items[i - 1].weight <= weight){
+                    util.array[i][weight] = max(util.array[i - 1][weight], 
+                                                util.array[i - 1][weight - items[i-1].weight] + items[i - 1].profit);
+                }
+                // if there is no scope of adding anymore weight
+                else {
+                    util.array[i][weight] = util.array[i - 1][weight];
                 }
             }
         }
-    }
-
-    void fillTable1(){
 
     }
+
+    void traceBack(int i, int j) {
+        // item doesn't exist
+        if (i == 0){
+            return;
+        }
+
+        // element under consideration is bigger than the one above then subtract the items weight from column weight and jump to that index
+        else if(util.array[i][j] > util.array[i - 1][j]){
+            selection.push_back(i+1);
+            traceBack(i - 1, j - items[i].weight);
+        }
+        
+        // vertical traceback
+        else{
+            traceBack(i - 1, j);
+        }
+    }
+
+    void traceBackHandler(){
+        traceBack(util.items - 1 , util.capacity - 1);
+        cout<<"Selected items are :\n";
+        for (int i = 0; i < selection.size(); i++) {
+            cout<<selection[i]<<" ";
+        }
+        cout<<endl;
+    }
+
 
 };
 
+void runApp(){
+    vector<Item> items;
+    
+    items.push_back(Item(1, 2));
+    items.push_back(Item(2, 3));
+    items.push_back(Item(5, 4));
+    items.push_back(Item(6, 5));
+
+    Solution solution(items, 8, 4);
+    
+    solution.fillTable();
+    solution.printSolution();
+    solution.traceBackHandler();
+}
 
 
 int main()
 {
-    vector<Container> containers;
-    containers.push_back(Container(0,2,3));
-    containers.push_back(Container(1,3,4));
-    containers.push_back(Container(2,4,5));
-    containers.push_back(Container(3,5,6));
-
-    Solution solution(containers, 7, 4);
-    solution.fillHandler();
-    solution.printSolution();
+    runApp();
     return 0;
 }
+
+
