@@ -142,7 +142,22 @@ public:
 
 
 int main() {
-    NQueen nQueen(10);
+    NQueen nQueen(4);
     nQueen.runApp();
     return 0;
 }
+
+/*
+Number of solutions : 2
+X       0       1       2       3
+0       0       1       0       0
+1       0       0       0       2
+2       3       0       0       0
+3       0       0       4       0
+
+X       0       1       2       3
+0       0       0       1       0
+1       2       0       0       0
+2       0       0       0       3
+3       0       4       0       0
+*/
