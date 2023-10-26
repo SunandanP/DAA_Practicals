@@ -2,29 +2,31 @@
 #include <vector>
 using namespace std;
 
-class Block{
-public:
-    int occupancy;
+struct Position{
+    int x;
+    int y;
 
-    Block(){
-        occupancy = 0;
+    Position(int x, int y){
+        this->x = x;
+        this->y = y;
     }
-
 };
 
 class Config{
 public:
     int size;
-
-    vector<vector<Block>> grid;
+    vector<vector<int>> grid;
 
     Config(int size){
         this->size = size;
-        vector<Block> temp;
+        vector<int> temp;
+
+        // Grid row setup
         for (int i = 0; i < size; i++) {
-            temp.push_back(Block());
+            temp.push_back(0);
         }
 
+        // Grid column setup
         for (int i = 0; i < size; i++) {
             grid.push_back(temp);
         }
@@ -43,68 +45,58 @@ public:
         for (int i = 0; i < size; i++) {
             cout<<i<<"\t";
             for (int j = 0; j < size; j++) {
-                cout<<grid[i][j].occupancy<<"\t";
+                cout<<grid[i][j]<<"\t";
             }
             cout<<endl;
         }cout<<endl;
     }
 };
 
-struct Position{
-    int x;
-    int y;
-
-    Position(int x, int y){
-        this->x = x;
-        this->y = y;
-    }
-};
-
-class Solution{
+class NQueen{
 public:
     Config config;
     vector<Config> solutions;
-    Solution(int size){
+    NQueen(int size){
         config = Config(size);
     }
 
     bool isSafe(Position pos){
         for (int i = 0; i < config.size; i++) {
             // Horizontal Check
-            if (config.grid[i][pos.y].occupancy > 0){
+            if (config.grid[i][pos.y] > 0){
                 return false;
             }
 
             // Vertical check
-            if (config.grid[pos.x][i].occupancy > 0){
+            if (config.grid[pos.x][i] > 0){
                 return false;
             }
         }
 
         // Upper left
         for (int i = pos.x, j = pos.y; i >= 0 && j >= 0; i--, j--) {
-            if (config.grid[i][j].occupancy > 0){
+            if (config.grid[i][j] > 0){
                 return false;
             }
         }
 
         // Upper right
         for (int i = pos.x, j = pos.y; i >= 0 && j < config.size; i--, j++) {
-            if (config.grid[i][j].occupancy > 0){
+            if (config.grid[i][j] > 0){
                 return false;
             }
         }
 
         // lower left
         for (int i = pos.x, j = pos.y; i < config.size && j >= 0; i++, j--) {
-            if (config.grid[i][j].occupancy > 0){
+            if (config.grid[i][j] > 0){
                 return false;
             }
         }
 
         // Upper left
         for (int i = pos.x, j = pos.y; i < config.size  && j < config.size; i++, j++) {
-            if (config.grid[i][j].occupancy > 0){
+            if (config.grid[i][j] > 0){
                 return false;
             }
         }
@@ -117,11 +109,11 @@ public:
     }
 
     void placeQueen(Position pos, int queen){
-        config.grid[pos.x][pos.y].occupancy = queen;
+        config.grid[pos.x][pos.y] = queen;
     }
 
     void unplaceQueen(Position pos){
-        config.grid[pos.x][pos.y].occupancy = 0;
+        config.grid[pos.x][pos.y] = 0;
     }
 
     void placeNQueens(int row, int queen){
@@ -150,7 +142,7 @@ public:
 
 
 int main() {
-    Solution solution(10);
-    solution.runApp();
+    NQueen nQueen(10);
+    nQueen.runApp();
     return 0;
 }
