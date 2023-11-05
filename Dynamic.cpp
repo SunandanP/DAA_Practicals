@@ -1,48 +1,50 @@
-#include<iostream>
+#include <iostream>
 #include <vector>
-
 using namespace std;
+
+struct Object{
+    int profit;
+    int weight;
+
+    Object(){
+        profit = 0;
+        weight = 0;
+    }
+
+    Object(int profit, int weight){
+        this->profit = profit;
+        this->weight = weight;
+    }
+};
+
 
 class Util{
 public:
-    vector<vector<int>> array;
-    int items;
+    vector<Object> items;
     int capacity;
+    vector<vector<int>> array;
 
     Util(){
-        items = 0;
         capacity = 0;
     }
 
-    Util(int items, int capacity){
+    Util(vector<Object> items, int capacity){
         this->items = items;
         this->capacity = capacity;
 
-        vector<int> temp(capacity + 1);
-
-        for (int i = 0; i <= capacity + 1; i++){
-            temp[i] = 0;
-        }
-
-        for (int i = 0; i <= items; i++){
-            array.push_back(temp);
-        }
+        vector<int> temp(capacity + 1, 0);
+        array = vector<vector<int>>(items.size() + 1, temp);
     }
 
-
-
     void printArray(){
-        cout<<"X"<<"\t";
-        for(int i = 0; i < array[0].size(); i++)
-            cout<<i<<"\t";
+        cout<<"X";
+        for(int i = 0; i < capacity + 1; i++){
+            cout<<"\t"<<i;
+        }
         cout<<endl;
-        int count = 0;
-        for (int i = 0; i < array.size(); i++){
-            for(int j = 0; j < array[0].size(); j++){
-                if(count == i){
-                    cout<<count<<"\t";
-                    count++;
-                }
+        for(int i = 0; i <= items.size(); i++){
+            cout<<i<<"\t";
+            for(int j = 0; j <= capacity; j++){
                 cout<<array[i][j]<<"\t";
             }
             cout<<endl;
@@ -50,118 +52,75 @@ public:
     }
 };
 
-class Item{
-public:
-
-    int profit;
-    int weight;
-
-    Item(){
-
-        profit = 0;
-        weight = 0;
-    }
-
-    Item(int profit, int weight){
-        this->profit = profit;
-        this->weight = weight;
-    }
-
-    void printContainer(){
-        cout<<"\tprofit : "<<profit<<"\tweight : "<<weight<<endl;
-    }
-
-};
-
-class Solution{
+class DynamicKnapsack{
 public:
     Util util;
     vector<int> selection;
-    vector<Item> items;
 
-    void printSolution(){
-        cout<<"Table : "<<endl;
-        util.printArray();
-    }
-
-
-    Solution(vector<Item> items, int capacity, int totalItems){
-        this->items = items;
-        util = Util(totalItems, capacity);
+    DynamicKnapsack(Util util){
+        this->util = util;
     }
 
     void fillTable(){
-        for (int i = 0; i <= items.size(); i++) {
-            for (int weight= 0; weight <= util.capacity; weight++) {
-                //item or weight doesn't exist
-                if (i == 0 || weight == 0){
-                    util.array[i][weight] = 0;
+        for(int i = 0; i <= util.items.size(); i++){
+            for(int j = 0; j <= util.capacity; j++){
+                if(i == 0 || j == 0){
+                    util.array[i][j] = 0;
                 }
-                // if there is a scope of adding some weight to the knapsack
-                //weight being, the weight under consideration 0, 1, 2, 3...n
-                else if(items[i - 1].weight <= weight){
-                    util.array[i][weight] = max(util.array[i - 1][weight], 
-                                                util.array[i - 1][weight - items[i-1].weight] + items[i - 1].profit);
+                else if(util.items[i - 1].weight <= j){
+                    util.array[i][j] = max(util.array[i - 1][j], util.items[i - 1].profit + util.array[i - 1][j - util.items[i - 1].weight]);
                 }
-                // if there is no scope of adding anymore weight
                 else {
-                    util.array[i][weight] = util.array[i - 1][weight];
+                    util.array[i][j] = util.array[i - 1][j];
                 }
             }
         }
 
     }
 
-    void traceBack(int i, int j) {
-        // item doesn't exist
-        if (i == 0){
+    void traceBack(int i, int j){
+        if(i == 0){
             return;
         }
 
-        // element under consideration is bigger than the one above then subtract the items weight from column weight and jump to that index
-        else if(util.array[i][j] > util.array[i - 1][j]){
-            selection.push_back(i+1);
-            traceBack(i - 1, j - items[i].weight);
+        if(util.array[i - 1][j] < util.array[i][j]){
+            selection.push_back(i);
+            traceBack(i - 1, j - util.items[i - 1].weight);
         }
-        
-        // vertical traceback
-        else{
+        else {
             traceBack(i - 1, j);
         }
     }
 
     void traceBackHandler(){
-        traceBack(util.items - 1 , util.capacity - 1);
-        cout<<"Selected items are :\n";
-        for (int i = 0; i < selection.size(); i++) {
-            cout<<selection[i]<<" ";
+        traceBack(util.items.size() , util.capacity);
+        cout<<"Selection is : ";
+        for(auto x : selection){
+            cout<<x<<" ";
         }
-        cout<<endl;
     }
 
+    void runApp(){
+        fillTable();
+        util.printArray();
+        traceBackHandler();
+    }
 
 };
 
-void runApp(){
-    vector<Item> items;
-    
-    items.push_back(Item(1, 2));
-    items.push_back(Item(2, 3));
-    items.push_back(Item(5, 4));
-    items.push_back(Item(6, 5));
-
-    Solution solution(items, 8, 4);
-    
-    solution.fillTable();
-    solution.printSolution();
-    solution.traceBackHandler();
-}
-
-
-int main()
-{
-    runApp();
+int main(){
+    vector<Object> items = {
+            Object(10,2),
+            Object(5,3),
+            Object(15,5),
+            Object(7,7),
+            Object(6,1),
+            Object(18,4),
+            Object(3,1),
+    };
+    Util util(items, 5);
+    DynamicKnapsack dk(util);
+    dk.runApp();
     return 0;
+
 }
-
-
